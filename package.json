@@ -1,0 +1,23 @@
+{
+  "name": "hakim-backend-productos",
+  "version": "1.0.0",
+  "description": "la aplicacion de catalogo de productos node-js",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "catalogo",
+    "productos"
+  ],
+  "author": "Hakim samouh",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "body-parser": "^1.18.3",
+    "date-fns": "^2.27.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.4.12"
+  }
+}
