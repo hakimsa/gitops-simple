@@ -20,7 +20,7 @@ spec:
       nodeSelector:
         "beta.kubernetes.io/os": linux
       containers:
-      - name: azure-vote-front
+      - name: node-app
         image: hakimsamouh/node-web-app:v1.0.0
         ports:
         - containerPort: 7000
