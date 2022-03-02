@@ -1,12 +1,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: azure-vote-front
+  name: node-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: azure-vote-front
+      app: node-app
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -15,15 +15,15 @@ spec:
   template:
     metadata:
       labels:
-        app: azure-vote-front
+        app: node-app
     spec:
       nodeSelector:
         "beta.kubernetes.io/os": linux
       containers:
       - name: azure-vote-front
-        image: hakimsamouh/node-server:v1.0.1
+        image: hakimsamouh/node-web-app
         ports:
-        - containerPort: 80
+        - containerPort: 7000
         resources:
           requests:
             cpu: 250m
