@@ -21,7 +21,7 @@ spec:
         "beta.kubernetes.io/os": linux
       containers:
       - name: node-app
-        image: hakimsamouh/node-web-app:v1.0.1
+        image: hakimsamouh/node-app:v0.0.0
         ports:
         - containerPort: 7000
         resources:
