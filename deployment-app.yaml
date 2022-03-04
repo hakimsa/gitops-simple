@@ -1,12 +1,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: node-app
+  name: node-app2
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: node-app
+      app: node-app2
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -15,12 +15,16 @@ spec:
   template:
     metadata:
       labels:
-        app: node-app
+        app: node-app2
     spec:
       nodeSelector:
         "beta.kubernetes.io/os": linux
       containers:
+<<<<<<< HEAD:deployment-app.yaml
       - name: node-app
+=======
+      - name: azure-vote-front
+>>>>>>> 06936f547d8e1dcbddd9fdd086d140736563a4d6:iainfracvsp.yaml
         image: hakimsamouh/node-app:v0.0.0
         ports:
         - containerPort: 7000
