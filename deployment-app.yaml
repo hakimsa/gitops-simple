@@ -20,11 +20,7 @@ spec:
       nodeSelector:
         "beta.kubernetes.io/os": linux
       containers:
-<<<<<<< HEAD:deployment-app.yaml
       - name: node-app
-=======
-      - name: azure-vote-front
->>>>>>> 06936f547d8e1dcbddd9fdd086d140736563a4d6:iainfracvsp.yaml
         image: hakimsamouh/node-app:v0.0.0
         ports:
         - containerPort: 7000
