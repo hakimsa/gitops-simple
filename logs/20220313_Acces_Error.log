@@ -16,3 +16,18 @@
 20220313	22:57:07	GET	/	origin	undefined	ok
 20220313	22:57:07	GET	/pagina	origin	undefined	ok
 20220313	22:57:07	GET	/pagina	origin	undefined	ok
+20220313	22:57:07	GET	/pagina	origin	undefined	ok
+20220313	22:57:07	GET	/pagina	origin	undefined	ok
+20220313	22:57:07	GET	/pagina	origin	undefined	ok
+20220313	22:57:07	GET	/	origin	undefined	ok
+20220313	22:57:07	GET	/all	origin	undefined	ok
+20220313	22:57:07	GET	/find/5e7a29ac1c9d44000018c3a8	origin	undefined	ok
+20220313	22:57:07	GET	/	origin	undefined	ok
+20220313	22:57:07	GET	/find	origin	undefined	ok
+20220313	22:57:07	GET	/find/5e7a29ac1c9d44000018c3a8	origin	undefined	ok
+20220313	22:57:07	GET	/find/5e7a29ac1c9d44000018c3a	origin	undefined	ok
+20220313	22:57:07	CastError		Error	Cast to ObjectId failed for value "5e7a29ac1c9d44000018c3a" at path "_id" for model "productos"	
+20220313	22:57:07	GET	/find/5e7a29ac1c9d44000018c3a	origin	undefined	ok
+20220313	22:57:07	CastError		Error	Cast to ObjectId failed for value "5e7a29ac1c9d44000018c3a" at path "_id" for model "productos"	
+20220313	22:57:07	GET	/find/5e7a29ac1c9d44000018c3a	origin	undefined	ok
+20220313	22:57:07	CastError		Error	Cast to ObjectId failed for value "5e7a29ac1c9d44000018c3a" at path "_id" for model "productos"	
