@@ -16,6 +16,13 @@ ls -ltr'''
           }
         }
 
+        stage('step3') {
+          steps {
+            sh '''ls -ltr
+ls -ltr | grep testfi*'''
+          }
+        }
+
       }
     }
 
