@@ -32,10 +32,11 @@ ls -ltr | grep testfi*'''
         stage('status') {
           steps {
             sh '''git status
+git config --global user.name "hakimsa"
 git add .
 git commit -m "add testfile.txt"
-git config --global user.email "samouh591@gmail.com"
-git config --global user.name "hakimsa"
+
+
 git pull
 git push'''
           }
