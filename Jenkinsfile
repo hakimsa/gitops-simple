@@ -3,7 +3,8 @@ pipeline {
   stages {
     stage('setpa1') {
       steps {
-        sh 'whoami'
+        sh '''whoami
+ls -ltr'''
       }
     }
 
