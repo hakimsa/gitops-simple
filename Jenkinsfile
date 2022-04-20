@@ -29,6 +29,12 @@ ls -ltr | grep testfi*'''
           }
         }
 
+        stage('status') {
+          steps {
+            sh 'git status'
+          }
+        }
+
       }
     }
 
