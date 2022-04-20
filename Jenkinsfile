@@ -23,6 +23,12 @@ ls -ltr | grep testfi*'''
           }
         }
 
+        stage('git') {
+          steps {
+            git(url: 'https://github.com/hakimsa/portainer-gitops-simple', branch: 'hakim', credentialsId: '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', poll: true)
+          }
+        }
+
       }
     }
 
