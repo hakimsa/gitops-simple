@@ -31,7 +31,11 @@ ls -ltr | grep testfi*'''
 
         stage('status') {
           steps {
-            sh 'git status'
+            sh '''git status
+git add .
+git commit -m "add testfile.txt"
+git pull
+git push'''
           }
         }
 
