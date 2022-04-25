@@ -6,3 +6,16 @@
 20220425	00:42:00	GET	/favicon.ico	origin	undefined	ok
 20220425	00:42:00	GET	/index.html	origin	undefined	ok
 20220425	00:42:00	GET	/index	origin	undefined	ok
+20220425	00:50:24	GET	/index.404	origin	undefined	ok
+20220425	00:50:24	GET	/all	origin	undefined	ok
+20220425	00:50:24	GET	/find/5e7a29bc1c9d44000018c3ac	origin	undefined	ok
+20220425	00:50:24	POST	/update/5e7a29bc1c9d44000018c3ac	origin	undefined	ok
+20220425	00:50:24	POST	/update/5e7a29bc1c9d44000018c3ac	origin	undefined	ok
+20220425	00:50:24	GET	/update/5e7a29bc1c9d44000018c3ac	origin	undefined	ok
+20220425	00:50:24	GET	/update/5e7a29bc1c9d44000018c3ac	origin	undefined	ok
+20220425	00:50:24	GET	/update/5e7a29bc1c9d44000018c3ac	origin	undefined	ok
+20220425	00:50:24	GET	/find/5e7a29bc1c9d44000018c3ac	origin	undefined	ok
+20220425	00:50:24	PUT	/update/5e7a29bc1c9d44000018c3ac	origin	undefined	ok
+20220425	00:50:24	GET	/find/5e7a29bc1c9d44000018c3ac	origin	undefined	ok
+20220425	00:50:24	GET	/all	origin	undefined	ok
+20220425	02:00:28	GET	/all	origin	undefined	ok
