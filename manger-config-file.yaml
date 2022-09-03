@@ -1,0 +1,7 @@
+apiVersion : v1
+kind : ConfigMap
+metadata:
+  name: manger-config-file
+data:
+  manager.conf:
+    export HOME=/root/users/login

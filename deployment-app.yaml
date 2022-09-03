@@ -21,7 +21,7 @@ spec:
         "beta.kubernetes.io/os": linux
       containers:
       - name: api-manager-producto
-        image: hakimsamouh/gitops:v-0.0.3
+        image: hakimsamouh/gitops:v-0.0.4
         ports:
         - containerPort: 7000
         resources:
@@ -29,4 +29,10 @@ spec:
             cpu: 250m
           limits:
             cpu: 500m
-
+        volumeMounts:
+          - name: api-manger-config
+            mountPath: /root/config
+      volumes:      
+        - name: api-manger-config
+          configMap:
+            name: manger-config-file
