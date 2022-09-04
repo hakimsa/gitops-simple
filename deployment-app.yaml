@@ -20,10 +20,12 @@ spec:
       nodeSelector:
         "beta.kubernetes.io/os": linux
       containers:
+          
       - name: api-manager-producto
         image: hakimsamouh/gitops:v-0.0.4
         ports:
         - containerPort: 7000
+             
         resources:
           requests:
             cpu: 250m
