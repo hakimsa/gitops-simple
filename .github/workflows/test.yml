@@ -7,9 +7,15 @@ jobs:
    test:
      runs-on: ubuntu-20.04
      steps:
-       - name: echruno "debut job"
+       - name: debut job testing 
          run: |
            echo "Hola devepos"
+       - name:  nnext step
+         run: | 
+          echo "next step "
+         
+
+           
 
 
 
