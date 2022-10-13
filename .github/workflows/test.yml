@@ -1,0 +1,17 @@
+name: test-accion
+on:
+ push:
+  branches:
+   - main
+jobs:
+   test:
+     runs-on: ubuntu-20.04
+     steps:
+       - name: echruno "debut job"
+         run: |
+           echo "Hola devepos"
+
+
+
+
+
