@@ -1,14 +1,12 @@
 const express=require("express");
-const ProductoController = require('../controllers/ProductoController');
 const rooter =express();
 const path=require("path");
 
-rooter.get('/index(.html)?',(req,res)=>{
-
-	res.sendFile(path.join(__dirname,"views","index.html"))
+rooter.get('/',(req,res)=>{
+res.sendFile(path.join(__dirname,"views","index.html"))
 });
 
-rooter.all('*',(req,res)=>{
+rooter.all('/*',(req,res)=>{
 	res.status(404);
 if (req.accepts("html")){
 	res.sendFile(path.join(__dirname,"views","404.html"))
@@ -20,4 +18,6 @@ if (req.accepts("html")){
 }
 }
 );
+
+
 module.exports=rooter;
