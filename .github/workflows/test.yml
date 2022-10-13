@@ -12,6 +12,8 @@ jobs:
            echo "Hola devepos"
        - name:  nnext step
          run: ls -l
+       - name : check who ami
+         run: whoami   
          
 
            
