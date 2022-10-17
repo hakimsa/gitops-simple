@@ -1,0 +1,12 @@
+20221016	19:49:17	GET	/	origin	undefined	ok
+20221016	19:49:17	GET	/favicon.ico	origin	undefined	ok
+20221016	19:49:17	GET	/	origin	undefined	ok
+20221016	19:49:17	GET	/	origin	undefined	ok
+20221016	19:49:17	GET	/lok	origin	undefined	ok
+20221016	19:49:17	GET	/	origin	undefined	ok
+20221016	19:49:17	GET	/all	origin	undefined	ok
+20221016	19:49:17	GET	/find/5e0f85701c9d4400008f61fe	origin	undefined	ok
+20221016	19:49:17	GET	/find/Iphon%2050%20M	origin	undefined	ok
+20221016	19:49:17	CastError		Error	Cast to ObjectId failed for value "Iphon 50 M" (type string) at path "_id" for model "productos"	
+20221016	19:49:17	GET	/find/Iphon%2050%20M	origin	undefined	ok
+20221016	19:49:17	CastError		Error	Cast to ObjectId failed for value "Iphon 50 M" (type string) at path "_id" for model "productos"	

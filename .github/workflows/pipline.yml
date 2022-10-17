@@ -17,7 +17,13 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-          
+      - name: install Express   
       - run: npm install express
+      - name: Install mongose
       - run: npm install mongose
+      - name: Listar directory app
       - run: ls -l 
+      - name: build
+      - run: npm run build 
+      - name: Test
+      - run: npm test
