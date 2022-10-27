@@ -35,8 +35,6 @@ ls -ltr | grep testfi*'''
 git config --global user.name "hakimsa"
 git add .
 git commit -m "add testfile.txt"
-
-
 git pull
 git push'''
           }
