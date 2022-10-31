@@ -1,7 +1,7 @@
 {
   "name": "hakim-backend-productos",
   "version": "1.0.0",
-  "description": "la aplicacion de catalogo de productos node-js",
+  "description": "la aplicacion demo simple de costumization  productos",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",

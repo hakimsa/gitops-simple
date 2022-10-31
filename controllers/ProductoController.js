@@ -33,7 +33,7 @@ function getProductos(req, res){
           }
       )
             }else{
-                res.status(200).send( {accion:'get all', data: productos})
+                res.status(200).send( {productos})
              
             
             }

@@ -1,12 +1,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: node-app2
+  name: api-manager-producto
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: node-app2
+      app: api-manager-producto
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -15,18 +15,26 @@ spec:
   template:
     metadata:
       labels:
-        app: node-app2
+        app: api-manager-producto
     spec:
       nodeSelector:
         "beta.kubernetes.io/os": linux
       containers:
-      - name: node-app
-        image: hakimsamouh/node-app:v0.0.0
+          
+      - name: api-manager-producto
+        image: hakimsamouh/gitops:v-0.0.4
         ports:
         - containerPort: 7000
+             
         resources:
           requests:
             cpu: 250m
           limits:
             cpu: 500m
-
+        volumeMounts:
+          - name: api-manger-config
+            mountPath: /root/config
+      volumes:      
+        - name: api-manger-config
+          configMap:
+            name: manger-config-file
