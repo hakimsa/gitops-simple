@@ -2,7 +2,7 @@ name: Deplyed to preproduction
 on: 
  push:
   branches:
-    - "hakim"
+    - hakim
 
 
 jobs:
