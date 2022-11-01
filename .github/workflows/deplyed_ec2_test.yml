@@ -1,0 +1,52 @@
+name: "Deploy to AWS"
+description: "Deploy the repository to AWS EC2"
+inputs:
+  get-env:
+    type: boolean
+    default: true
+    required: false
+    description: "Flag to get the env variables or not. Set `false` if ENV secrets should not be fetched"
+  env-bucket:
+    type: string
+    required: true
+    description: "Bucket where the ENV Secrets are stored"
+  aws-app-name:
+    type: string
+    required: true
+    description: "AWS App Name"
+  app-bucket:
+    type: string
+    required: true
+    description: "Bucket where the deployment is stored"
+  app-group:
+    type: string
+    required: true
+    description: "AWS Deployment Group Name to deploy the application"
+  runs:
+  using: "composite"
+  steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+    - id: get-diff
+      name: Get different submodules
+      run: chmod +x ./scripts/diff.sh && ./scripts/diff.sh
+      env:
+        GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+        GITHUB_SHA: ${{ github.GITHUB_SHA }}
+      outputs:
+        submodules:
+          description: "Submodules to be deployed"
+    - name: Deploy to AWS
+      run: chmod +x ./main.sh && ./scripts/main.sh ${{ steps.get-diff.outputs.submodules }}
+      shell: bash
+      env:
+        GET_ENV: ${{ inputs.get-env }}
+        ENV_BUCKET: ${{ inputs.env-bucket }}
+        AWS_APP_NAME: ${{ inputs.aws-app-name }}
+        AWS_PUBLISH_BUCKET_NAME: ${{ inputs.app-bucket }}
+        AWS_FILENAME: ${{ inputs.aws-app-name }}-${{ github.sha }}
+        AWS_DEPLOY_GROUP: ${{ inputs.app-group }}
