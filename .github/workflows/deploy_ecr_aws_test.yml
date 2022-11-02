@@ -59,6 +59,7 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
+          #hay que crear un service y  un cluster para ejecutar las deficiciones de la tarea
           service: my-service
           cluster: my-cluster
           wait-for-service-stability: true
