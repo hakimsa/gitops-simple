@@ -6,6 +6,6 @@ rooter.route('/all').get(ProductoController.getProductos);
 rooter.route('/find/:id').get(ProductoController.getProducto);
 rooter.route('/save').post(ProductoController.saveProducto);
 rooter.route('/update/:id').put(ProductoController.updateProducto);
-rooter.route('/delete').delete(ProductoController.deleteProducto);
+rooter.route('/delete/:id').delete(ProductoController.deleteProducto);
                                
 module.exports=rooter;
