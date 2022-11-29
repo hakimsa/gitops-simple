@@ -58,7 +58,7 @@ function saveProducto(req, res){
     producto.categoria = param.categoria
     producto.precio = param.precio
     producto.descripcion=param.descripcion
-
+    producto.img=param.img
     console.log(producto)
     producto.save().then(
         productoGuardado => {
