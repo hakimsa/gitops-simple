@@ -1,0 +1,8 @@
+20221212	22:15:19	GET	/	origin	undefined	ok
+20221212	22:15:19	GET	/all	origin	undefined	ok
+20221212	22:15:19	GET	/all	origin	http://localhost:4200	ok
+20221212	22:15:19	GET	/all	origin	http://localhost:4200	ok
+20221212	22:15:19	GET	/all	origin	http://localhost:4200	ok
+20221212	22:15:19	GET	/all	origin	http://localhost:4200	ok
+20221212	22:15:19	GET	/all	origin	http://localhost:4200	ok
+20221212	22:15:19	GET	/	origin	undefined	ok
