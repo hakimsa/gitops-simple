@@ -7,6 +7,7 @@ const ProductoSchema = Schema(
         descripcion:String,
         precio:String,
         categoria:String,
+        img:String
      
     }
 )
