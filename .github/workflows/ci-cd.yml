@@ -9,17 +9,21 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
+      # 1️⃣ Checkout
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      # 2️⃣ Instalar Node y dependencias
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-
       - name: Install dependencies
-        run: npm ci  # puedes usar npm install si prefieres
-
+          
+        run: |
+         cd $GITHUB_WORKSPACE
+         ls -la
+         npm install
       - name: Run tests
         run: npm test
 
@@ -30,6 +34,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      # 3️⃣ Configurar gcloud con service account
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
@@ -37,6 +42,7 @@ jobs:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
 
+      # 4️⃣ Disparar Cloud Build
       - name: Trigger Cloud Build
         run: |
           gcloud builds submit \
