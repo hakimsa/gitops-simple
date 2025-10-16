@@ -61,4 +61,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
          credentials_json: ${{ secrets.GCP_SA_KEY }}
-
+ # 5️⃣ Disparar Cloud Build (usa tu cloudbuild.yaml del repo)
+      - name: Trigger Cloud Build
+        run: |
+          gcloud builds submit --config cloudbuild.yaml --project ${{ secrets.GCP_PROJECT }}
