@@ -1,9 +1,16 @@
-# ignore .git and .cache folders
+# Ignorar control de versiones y caches
 .git
 .cache
-# ignore all *.class files in all folders, including build root
+
+# Ignorar dependencias locales (npm instalará dentro del contenedor)
+node_modules
+
+# Ignorar logs
+*.log
+
+# Ignorar archivos compilados Java (si los hay)
 **/*.class
-# ignore all markdown files (md) beside all README*.md other than README-secret.md
+
+# Ignorar archivos markdown excepto los README importantes
 *.md
 !README*.md
-README-secret.md

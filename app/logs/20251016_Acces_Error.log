@@ -1,0 +1,18 @@
+20251016	16:05:13	MongoParseError		Error	option usefindandmodify is not supported	
+20251016	16:05:28	MongoParseError		Error	option usefindandmodify is not supported	
+20251016	16:09:08	MongoParseError		Error	Protocol and host list are required in "mongodb+srv://hakim::Ad1234@@cluster0-y69ki.mongodb.net/productos?retryWrites=true&w=majority"	
+20251016	16:10:40	MongoParseError		Error	Protocol and host list are required in "mongodb+srv://hakim::Ad1234@@cluster0-y69ki.mongodb.net//productos?retryWrites=true&w=majority"	
+20251016	16:12:25	MongoParseError		Error	option usefindandmodify is not supported	
+20251016	16:13:37	MongoParseError		Error	option usefindandmodify is not supported	
+20251016	16:13:53	Error		Error	querySrv ENOTFOUND _mongodb._tcp.cluster0-y69ki.mongodb.net	
+20251016	16:18:33	MongoServerError		Error	bad auth : Authentication failed.	
+20251016	16:18:54	GET	/api/v1/all	origin	undefined	ok
+20251016	16:18:54	GET	/favicon.ico	origin	undefined	ok
+20251016	16:18:54	GET	/api/v1/product/	origin	undefined	ok
+20251016	16:18:54	GET	/api/v1/product/all	origin	undefined	ok
+20251016	16:18:54	GET	//all	origin	undefined	ok
+20251016	16:18:54	GET	/all	origin	undefined	ok
+20251016	16:23:54	GET	/all	origin	undefined	ok
+20251016	16:23:54	GET	/finde/651ec9ff95708e4b51ab7431	origin	undefined	ok
+20251016	16:23:54	GET	/find/651ec9ff95708e4b51ab7431	origin	undefined	ok
+20251016	16:33:01	GET	/find/651ec9ff95708e4b51ab7431	origin	undefined	ok

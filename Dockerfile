@@ -13,7 +13,9 @@ RUN npm install
 # RUN npm ci --only=production
 
 # Bundle app source
-COPY . .
+COPY app/ ./
+COPY app/* ./
+
 
 EXPOSE 8088
 CMD [ "node", "index.js" ]

@@ -1,0 +1,23 @@
+runtime: custom       # Indica que vamos a usar un contenedor personalizado
+env: flex             # App Engine Flexible environment
+
+# Opcional: versión de la app
+# version: v1
+
+# Número de instancias (puede ser automático o manual)
+automatic_scaling:
+  min_num_instances: 1
+  max_num_instances: 2
+
+# Recursos asignados a cada instancia
+resources:
+  cpu: 1
+  memory_gb: 1
+  disk_size_gb: 10
+
+# Entry point vacío porque la imagen ya tiene su propio CMD/ENTRYPOINT
+entrypoint: ""
+
+# Opcional: variables de entorno
+# env_variables:
+#   NODE_ENV: production
