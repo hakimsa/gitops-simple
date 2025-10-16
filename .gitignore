@@ -3,3 +3,6 @@ package-lock.json
 dbConfig/
 logs/*
 
+# Terraform local plugins
+.terraform/
+.terraform.lock.hcl
