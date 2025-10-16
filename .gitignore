@@ -3,6 +3,18 @@ package-lock.json
 dbConfig/
 logs/*
 
-# Terraform local plugins
+# Node.js
+node_modules/
+npm-debug.log
+.env
+
+# Docker
+*.tar
+*.log
+
+# Terraform
 .terraform/
 .terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+*.zip
