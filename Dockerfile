@@ -9,7 +9,8 @@ RUN npm install
 
 # Copiar toda la app (subcarpetas incluidas)
 COPY app/ ./
-
+COPY app/dbConfig/ ./dbConfig/
+COPY app/index.js ./
 # Exponer puerto
 EXPOSE 8088
 
