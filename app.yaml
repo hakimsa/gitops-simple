@@ -2,7 +2,7 @@ runtime: custom       # Indica que vamos a usar un contenedor personalizado
 env: flex             # App Engine Flexible environment
 
 # Opcional: versión de la app
-#version: v1
+version: v1
 
 # Número de instancias (puede ser automático o manual)
 automatic_scaling:
