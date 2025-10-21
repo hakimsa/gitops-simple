@@ -1,13 +1,4 @@
 steps:
-# 1️⃣ Leer versión desde el archivo VERSION y exportarla como variable
-  - name: 'gcr.io/cloud-builders/gcloud'
-    id: 'get-version'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        VERSION=$(cat VERSION)
-        echo "_VERSION=${VERSION}" >> /workspace/substitutions.env
   # 1️⃣ Construir la imagen Docker
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Build image'
@@ -15,7 +6,7 @@ steps:
       [
         'build',
         '-t',
-        'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:${_VERSION}',
+        'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:latest',
         '.'
       ]
 
@@ -25,7 +16,7 @@ steps:
     args:
       [
         'push',
-        'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:${_VERSION}'
+        'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:latest'
       ]
 
   # 3️⃣ Deploy a App Engine
@@ -36,8 +27,8 @@ steps:
       - '-c'
       - |
         gcloud app deploy app.yaml \
-          --image-url=us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/app:${_VERSION} \
+          --image-url=us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/app:latest \
           --quiet
 
 images:
-  - 'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:${_VERSION}'
+  - 'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:latest'
