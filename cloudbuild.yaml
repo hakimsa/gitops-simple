@@ -27,8 +27,8 @@ steps:
       - '-c'
       - |
         gcloud app deploy app.yaml \
-          --image-url=us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/app:latest \
+          --image-url=us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/app:${VERSION} \
           --quiet
 
 images:
-  - 'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:latest'
+  - 'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:${VERSION}'
