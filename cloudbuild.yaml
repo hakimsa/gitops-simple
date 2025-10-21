@@ -1,4 +1,13 @@
 steps:
+# 1️⃣ Leer versión desde el archivo VERSION y exportarla como variable
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'get-version'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        VERSION=$(cat VERSION)
+        echo "_VERSION=${VERSION}" >> /workspace/substitutions.env
   # 1️⃣ Construir la imagen Docker
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Build image'
