@@ -3,7 +3,7 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Build image'
     args:
-      ['build', '-t', 'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:latest', '.']
+      ['build', '-t', 'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:v3', '.']
 
   # 2️⃣ SonarQube analysis
   - name: 'sonarsource/sonar-scanner-cli'
@@ -11,15 +11,15 @@ steps:
     entrypoint: 'sonar-scanner'
     env:
       - 'SONAR_HOST_URL=https://sonarcloud.io'
-      - 'SONAR_TOKEN=$SONAR_TOKEN'   # Toma el token desde Secret Manager
+      - 'SONAR_TOKEN=$_SONAR_TOKEN'   # Variable de sustitución desde GitHub
 
   # 3️⃣ Push Docker image
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Push image'
     args:
-      ['push', 'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:latest']
+      ['push', 'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:v3']
 
-  # 4️⃣ Deploy to staging App Engine
+  # 4️⃣ Deploy staging App Engine
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     id: 'Deploy staging'
     entrypoint: 'bash'
@@ -27,13 +27,8 @@ steps:
       - '-c'
       - |
         gcloud app deploy app.yaml \
-          --image-url=us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:latest \
+          --image-url=us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:v3 \
           --quiet
 
 images:
-  - 'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:latest'
-
-availableSecrets:
-  secretManager:
-    - versionName: projects/fiery-synthesis-472821-m2/secrets/sonar-token-central/versions/latest
-      env: 'SONAR_TOKEN'
+  - 'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:v3'

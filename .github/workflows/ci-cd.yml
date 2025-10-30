@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:   # Para poder ejecutar manualmente el deploy a producción
+  workflow_dispatch:   # Para ejecutar manualmente el deploy a producción
 
 jobs:
   # 1️⃣ Build Docker image
@@ -30,7 +30,7 @@ jobs:
       - name: Run unit tests
         run: npm test
 
-  # 3️⃣ SonarQube analysis
+  # 3️⃣ SonarQube analysis via Cloud Build
   sonar:
     needs: test
     runs-on: ubuntu-latest
@@ -45,13 +45,14 @@ jobs:
         with:
           project_id: ${{ secrets.GCP_PROJECT }}
           install_components: 'cloud-build-local'
-      - name: Run SonarQube via Cloud Build
+      - name: Run Cloud Build with SonarQube token
         run: |
           gcloud builds submit \
             --config cloudbuild.yaml \
-            --project ${{ secrets.GCP_PROJECT }}
+            --project ${{ secrets.GCP_PROJECT }} \
+            --substitutions=_SONAR_TOKEN=${{ secrets.SONAR_TOKEN }}
 
-  # 4️⃣ Push Docker image (ya lo hace cloudbuild.yaml, opcional repetir)
+  # 4️⃣ Push Docker image (opcional, ya se hace en cloudbuild.yaml)
   push-image:
     needs: sonar
     runs-on: ubuntu-latest
