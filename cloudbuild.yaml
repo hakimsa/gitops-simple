@@ -6,20 +6,29 @@ steps:
       [
         'build',
         '-t',
-        'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:v1',
+        'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:latest',
         '.'
       ]
 
-  # 2️⃣ Subir la imagen al Artifact Registry
+  # 2️⃣ Analizar el código con SonarQube / SonarCloud
+  - name: 'sonarsource/sonar-scanner-cli'
+    id: 'SonarQube Analysis'
+    entrypoint: 'sonar-scanner'
+    env:
+      - 'SONAR_HOST_URL=https://sonarcloud.io'   # 🔧 Cambia si usas SonarQube local
+      - 'SONAR_TOKEN=${SONAR_TOKEN}'             # Se obtiene desde Secret Manager
+      # El resto de configuración se toma del archivo sonar-project.properties
+
+  # 3️⃣ Subir la imagen al Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Push image'
     args:
       [
         'push',
-        'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:v1'
+        'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:latest'
       ]
 
-  # 3️⃣ Deploy a App Engine
+  # 4️⃣ Desplegar a App Engine
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     id: 'Deploy to App Engine'
     entrypoint: 'bash'
@@ -27,8 +36,13 @@ steps:
       - '-c'
       - |
         gcloud app deploy app.yaml \
-          --image-url=us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/app:v1 \
+          --image-url=us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/app:${VERSION} \
           --quiet
 
 images:
-  - 'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:v1'
+  - 'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:${VERSION}'
+
+availableSecrets:
+  secretManager:
+    - versionName: projects/$PROJECT_ID/secrets/sonar-token/versions/latest
+      env: 'SONAR_TOKEN'
