@@ -11,7 +11,7 @@ steps:
     entrypoint: 'sonar-scanner'
     env:
       - 'SONAR_HOST_URL=https://sonarcloud.io'
-      - 'SONAR_TOKEN=$_SONAR_TOKEN'   # Variable de sustitución desde GitHub
+      - 'SONAR_TOKEN=$_TOKEN_SONRQUBE_GITOPS'   # Variable de sustitución desde GitHub
 
   # 3️⃣ Push Docker image
   - name: 'gcr.io/cloud-builders/docker'
