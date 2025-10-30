@@ -35,5 +35,5 @@ images:
 
 availableSecrets:
   secretManager:
-    - versionName: projects/fiery-synthesis-472821-m2/secrets/sonar-token/versions/latest
+    - versionName: projects/fiery-synthesis-472821-m2/secrets/sonar-token-central/versions/latest
       env: 'SONAR_TOKEN'
