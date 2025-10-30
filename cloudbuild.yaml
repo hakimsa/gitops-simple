@@ -24,12 +24,13 @@ steps:
     args:
       - '-c'
       - |
-        mkdir -p $PWD/.scannerwork
-        export SONAR_SCANNER_OPTS="-Dsonar.working.directory=$PWD/.scannerwork"
+        WORKDIR=$(pwd)
+        mkdir -p "$WORKDIR/.scannerwork"
+        export SONAR_SCANNER_OPTS="-Dsonar.working.directory=$WORKDIR/.scannerwork"
         sonar-scanner
     env:
       - 'SONAR_HOST_URL=https://sonarcloud.io'
-      - 'TOKEN_SONRQUBE_GITOPS=$_TOKEN_SONRQUBE_GITOPS'
+      - 'SONAR_TOKEN=$_TOKEN_SONRQUBE_GITOPS'
     dir: '.'
 
   # 4. Push Docker image to Artifact Registry
