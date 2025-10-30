@@ -8,7 +8,12 @@ steps:
   # 2️⃣ SonarQube analysis
   - name: 'sonarsource/sonar-scanner-cli'
     id: 'SonarQube Analysis'
-    entrypoint: 'sonar-scanner'
+    entrypoint: 'bash'
+    args:
+    - '-c'
+    - |
+      mkdir -p /workspace/.scannerwork
+      sonar-scanner
     env:
       - 'SONAR_HOST_URL=https://sonarcloud.io'
       - 'SONAR_TOKEN=$_TOKEN_SONRQUBE_GITOPS'   # Variable de sustitución desde GitHub
