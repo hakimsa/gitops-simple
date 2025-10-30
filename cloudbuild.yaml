@@ -10,13 +10,13 @@ steps:
         '.'
       ]
 
-  # 2️⃣ Analizar el código con SonarQube / SonarCloudd
+  # 2️⃣ Analizar el código con SonarQube / SonarCloud
   - name: 'sonarsource/sonar-scanner-cli'
     id: 'SonarQube Analysis'
     entrypoint: 'sonar-scanner'
     env:
-      - 'SONAR_HOST_URL=https://sonarcloud.io'   # 🔧 Cambia si usas SonarQube local
-      - 'SONAR_TOKEN=${TOKEN_SONRQUBE_GITOPS}'             # Se obtiene desde Secret Manager
+      - 'SONAR_HOST_URL=https://sonarcloud.io'   # Cambia si usas SonarQube local
+      - 'SONAR_TOKEN=${SONAR_TOKEN}'             # Tomado directamente de Secret Manager
       # El resto de configuración se toma del archivo sonar-project.properties
 
   # 3️⃣ Subir la imagen al Artifact Registry
@@ -46,3 +46,4 @@ availableSecrets:
   secretManager:
     - versionName: projects/$PROJECT_ID/secrets/sonar-token/versions/latest
       env: 'SONAR_TOKEN'
+
