@@ -1,49 +1,39 @@
 steps:
-  # 1️⃣ Construir la imagen Docker
+  # 1️⃣ Build Docker image
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Build image'
     args:
-      [
-        'build',
-        '-t',
-        'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:latest',
-        '.'
-      ]
+      ['build', '-t', 'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:latest', '.']
 
-  # 2️⃣ Analizar el código con SonarQube / SonarCloud
+  # 2️⃣ SonarQube analysis
   - name: 'sonarsource/sonar-scanner-cli'
     id: 'SonarQube Analysis'
     entrypoint: 'sonar-scanner'
     env:
-      - 'SONAR_HOST_URL=https://sonarcloud.io'   # Cambia si usas SonarQube local
-      - 'SONAR_TOKEN=$SONAR_TOKEN'          # Tomado directamente de Secret Manager
-      # El resto de configuración se toma del archivo sonar-project.properties
+      - 'SONAR_HOST_URL=https://sonarcloud.io'
+      - 'SONAR_TOKEN=$SONAR_TOKEN'   # Toma el token desde Secret Manager
 
-  # 3️⃣ Subir la imagen al Artifact Registry
+  # 3️⃣ Push Docker image
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Push image'
     args:
-      [
-        'push',
-        'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:latest'
-      ]
+      ['push', 'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:latest']
 
-  # 4️⃣ Desplegar a App Engine
+  # 4️⃣ Deploy to staging App Engine
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    id: 'Deploy to App Engine'
+    id: 'Deploy staging'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
         gcloud app deploy app.yaml \
-          --image-url=us-central1-docker.pkg.dev/$PROJECT_ID/my-repo/app:${VERSION} \
+          --image-url=us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:latest \
           --quiet
 
 images:
-  - 'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:${VERSION}'
+  - 'us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:latest'
 
 availableSecrets:
   secretManager:
     - versionName: projects/fiery-synthesis-472821-m2/secrets/sonar-token/versions/latest
       env: 'SONAR_TOKEN'
-

@@ -4,16 +4,14 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:   # Para poder lanzar manualmente el deploy a producción
+  workflow_dispatch:   # Para poder ejecutar manualmente el deploy a producción
 
 jobs:
   # 1️⃣ Build Docker image
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
+      - uses: actions/checkout@v3
       - name: Build Docker image
         run: |
           docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/my-repo/app:latest .
@@ -23,46 +21,37 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: '20'
-
       - name: Install dependencies
         run: npm install
-
       - name: Run unit tests
         run: npm test
 
-  # 3️⃣ SonarQube / SonarCloud analysis
+  # 3️⃣ SonarQube analysis
   sonar:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
+      - uses: actions/checkout@v3
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-
       - name: Setup gcloud CLI
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ secrets.GCP_PROJECT }}
           install_components: 'cloud-build-local'
-
-      - name: Run SonarQube analysis via Cloud Build
+      - name: Run SonarQube via Cloud Build
         run: |
           gcloud builds submit \
             --config cloudbuild.yaml \
             --project ${{ secrets.GCP_PROJECT }}
 
-  # 4️⃣ Push Docker image to Artifact Registry
+  # 4️⃣ Push Docker image (ya lo hace cloudbuild.yaml, opcional repetir)
   push-image:
     needs: sonar
     runs-on: ubuntu-latest
@@ -71,13 +60,12 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-
       - name: Push Docker image
         run: |
           gcloud auth configure-docker us-central1-docker.pkg.dev
-          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/my-repo/app:v3
+          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/my-repo/app:latest
 
-  # 5️⃣ Deploy to staging (automatic)
+  # 5️⃣ Deploy staging (automático)
   deploy-staging:
     needs: push-image
     runs-on: ubuntu-latest
@@ -86,16 +74,15 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-
       - name: Deploy to Staging
         run: |
           gcloud run deploy my-service-staging \
-            --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/my-repo/app:v3 \
+            --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/my-repo/app:latest \
             --region us-central1 \
             --platform managed \
             --allow-unauthenticated
 
-  # 6️⃣ Deploy to production (manual)
+  # 6️⃣ Deploy production (manual)
   deploy-production:
     if: github.event_name == 'workflow_dispatch'
     needs: push-image
@@ -105,11 +92,10 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-
       - name: Deploy to Production
         run: |
           gcloud run deploy my-service-production \
-            --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/my-repo/app:v3 \
+            --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/my-repo/app:latest \
             --region us-central1 \
             --platform managed \
             --allow-unauthenticated
