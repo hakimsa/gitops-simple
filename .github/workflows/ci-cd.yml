@@ -75,7 +75,7 @@ jobs:
       - name: Push Docker image
         run: |
           gcloud auth configure-docker us-central1-docker.pkg.dev
-          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/my-repo/app:latest
+          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/my-repo/app:v3
 
   # 5️⃣ Deploy to staging (automatic)
   deploy-staging:
@@ -90,7 +90,7 @@ jobs:
       - name: Deploy to Staging
         run: |
           gcloud run deploy my-service-staging \
-            --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/my-repo/app:latest \
+            --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/my-repo/app:v3 \
             --region us-central1 \
             --platform managed \
             --allow-unauthenticated
@@ -109,7 +109,7 @@ jobs:
       - name: Deploy to Production
         run: |
           gcloud run deploy my-service-production \
-            --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/my-repo/app:latest \
+            --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/my-repo/app:v3 \
             --region us-central1 \
             --platform managed \
             --allow-unauthenticated

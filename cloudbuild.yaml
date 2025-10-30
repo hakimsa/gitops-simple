@@ -16,7 +16,7 @@ steps:
     entrypoint: 'sonar-scanner'
     env:
       - 'SONAR_HOST_URL=https://sonarcloud.io'   # Cambia si usas SonarQube local
-      - 'SONAR_TOKEN=${SONAR_TOKEN}'             # Tomado directamente de Secret Manager
+      - 'SONAR_TOKEN=$SONAR_TOKEN'          # Tomado directamente de Secret Manager
       # El resto de configuración se toma del archivo sonar-project.properties
 
   # 3️⃣ Subir la imagen al Artifact Registry
