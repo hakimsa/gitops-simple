@@ -6,62 +6,48 @@ on:
       - main
 
 jobs:
-  ci:
+  build_and_test:
     runs-on: ubuntu-latest
     steps:
-      # 1️⃣ Checkout
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ Instalar Node y dependencias
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
+
       - name: Install dependencies
-          
         run: |
-         cd $GITHUB_WORKSPACE
-         ls -la
-         npm install
-      - name: Run tests
+          npm install
+
+      - name: Run unit tests
         run: npm test
 
   deploy:
-    needs: ci
+    needs: build_and_test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 3️⃣ Configurar gcloud con service account
+      # Authenticate with Google Cloud
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-         credentials_json: ${{ secrets.GCP_SA_KEY }}
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Set up gcloud CLI
+      # Configure gcloud CLI
+      - name: Setup gcloud CLI
         uses: google-github-actions/setup-gcloud@v2
         with:
-         project_id: ${{ secrets.GCP_PROJECT }}
-         install_components: 'cloud-build-local'
+          project_id: ${{ secrets.GCP_PROJECT }}
+          install_components: 'cloud-build-local'
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-         credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-      - name: Set up gcloud CLI
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-         project_id: ${{ secrets.GCP_PROJECT }}
-         install_components: 'cloud-build-local'
-
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-         credentials_json: ${{ secrets.GCP_SA_KEY }}
- # 5️⃣ Disparar Cloud Build (usa tu cloudbuild.yaml del repo)
-      - name: Trigger Cloud Build
+      # Run Cloud Build pipeline
+      - name: Run Cloud Build
         run: |
-          gcloud builds submit --config cloudbuild.yaml --project ${{ secrets.GCP_PROJECT }}
+          gcloud builds submit \
+            --config cloudbuild.yaml \
+            --project ${{ secrets.GCP_PROJECT }} \
+            --substitutions=_TOKEN_SONRQUBE_GITOPS=${{ secrets.TOKEN_SONRQUBE_GITOPS }}
