@@ -10,7 +10,7 @@ steps:
         '.'
       ]
 
-  # 2️⃣ Analizar el código con SonarQube / SonarCloud
+  # 2️⃣ Analizar el código con SonarQube / SonarCloudd
   - name: 'sonarsource/sonar-scanner-cli'
     id: 'SonarQube Analysis'
     entrypoint: 'sonar-scanner'
