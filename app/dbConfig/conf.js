@@ -1,7 +1,8 @@
-const user = "admin";
-const pass = "Cafe2020";
-const cluster = "cluster0.9pawl.mongodb.net";
-const db = "dbtest";
-const serv = "mongodb+srv://";
-
-module.exports={user,pass,cluster,db,serv};
+// config.js
+require('dotenv').config();
+const user = process.env.DB_USER;
+const pass = process.env.DB_PASS;
+const cluster = process.env.DB_CLUSTER;
+const db = process.env.DB_NAME;
+const serv = process.env.DB_SERV || "mongodb+srv://";
+module.exports = { user, pass, cluster, db, serv };
