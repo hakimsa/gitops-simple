@@ -15,7 +15,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/my-repo/app-dev:latest .
+          docker build -t us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app-dev:latest .
 
   # 2️⃣ Run unit tests
   test:
@@ -46,14 +46,13 @@ jobs:
       - name: Setup gcloud CLI
         uses: google-github-actions/setup-gcloud@v2
         with:
-          project_id: ${{ secrets.GCP_PROJECT }}
+          project_id: fiery-synthesis-472821-m2
 
       - name: Run Cloud Build with SonarQube analysis
         run: |
           gcloud builds submit \
             --config cloudbuild-dev-ci.yaml \
-            --project ${{ secrets.GCP_PROJECT }}
-
+            --project fiery-synthesis-472821-m2
   # 4️⃣ Push Docker image to Artifact Registry 
   push-image:
     needs: sonar
@@ -67,7 +66,7 @@ jobs:
       - name: Push Docker image
         run: |
           gcloud auth configure-docker us-central1-docker.pkg.dev
-          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/my-repo/app-dev:latest
+          docker push us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app-dev:latest
 
   # 5️⃣ Deploy to Dev environment (Cloud Run)
   deploy-dev:
@@ -82,7 +81,7 @@ jobs:
       - name: Deploy to Dev environment
         run: |
           gcloud run deploy my-service-dev \
-            --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/my-repo/app-dev:latest \
+            --image us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app-dev:latest \
             --region us-central1 \
             --platform managed \
             --allow-unauthenticated
@@ -99,7 +98,7 @@ jobs:
         with:
           payload: |
             {
-              "text": ":rocket: *Deploy completado en entorno DEV* :white_check_mark:\nProyecto: ${{ secrets.GCP_PROJECT }}\nServicio: my-service-dev\nCommit: ${{ github.sha }}"
+              "text": ":rocket: *Deploy completado en entorno DEV* :white_check_mark:\nProyecto: fiery-synthesis-472821-m2\nServicio: my-service-dev\nCommit: ${{ github.sha }}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
