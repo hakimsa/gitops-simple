@@ -1,7 +1,7 @@
 ﻿﻿const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const PORT = process.env.PORT || 8088;
+const PORT = process.env.PORT || 8080;
 const app = express();
 const {logger,logEvents}=require("./midlewares/LogEvents");
 const {serv,user,pass,cluster,db}=require("./dbConfig/conf");
