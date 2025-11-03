@@ -47,7 +47,7 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@v2
         with:
           projectBaseDir: '.'
-          organization: 'hakimsa-1'
+          organization: 'hakimsa'
           projectKey: 'gitops-simple'
         env:
          SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
