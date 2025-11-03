@@ -33,28 +33,34 @@ jobs:
 
   # 3️⃣ Static code analysis (SonarQube)
   sonar:
-     needs: test
-     runs-on: ubuntu-latest
-     steps:
-       - uses: actions/checkout@v3
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
 
-       - name: Set up Node.js
-         uses: actions/setup-node@v3
-         with:
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
           node-version: '20'
 
-       - name: Install dependencies
-         run: npm install
+      - name: Install SonarCloud Scanner
+        run: npm install -g sonarqube-scanner
 
-       - name: Install SonarQube Scanner
-         run: npm install -g sonarqube-scanner
-
-       - name: Run SonarCloud Analysis
-         uses: SonarSource/sonarcloud-github-action@v2
-         with:
-          projectKey: hakimsa_devops-repo
-          organization: hakimsa
-          token: ${{ secrets.SONARCLOUD_TOKEN }}
+      - name: Run SonarCloud Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
+        run: |
+          node -e "
+            const scanner = require('sonarqube-scanner');
+            scanner({
+              serverUrl: 'https://sonarcloud.io',
+              options: {
+                'sonar.projectKey': 'hakimsa_devops-repo',
+                'sonar.organization': 'hakimsa',
+                'sonar.sources': '.'
+              }
+            });
+          "
   # 4️⃣ Push Docker image to Artifact Registry 
   push-image:
     needs: sonar
