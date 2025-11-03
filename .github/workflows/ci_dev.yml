@@ -15,7 +15,14 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app-dev:latest .
+          docker build -t app-dev:latest .
+          docker save app-dev:latest -o app-dev.tar
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-image
+          path: app-dev.tar
 
   # 2️⃣ Run unit tests
   test:
@@ -31,31 +38,38 @@ jobs:
       - name: Run unit tests
         run: npm test
 
-  # 3️⃣ Static code analysis (SonarQube)
+  # 3️⃣ Static code analysis (SonarCloud)
   sonar:
-    needs: build
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-
-      - name: Run SonarCloud Analysis
-        uses: SonarSource/sonarcloud-github-action@v2
-        with:
-          projectBaseDir: '.'
-          organization: 'hakimsa'
-          projectKey: 'hakimsa_gitops-simple'
+      - name: Run SonarCloud Scan
         env:
-         SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
+        run: |
+          npx sonar-scanner \
+            -Dsonar.organization=hakimsa \
+            -Dsonar.projectKey=hakimsa_gitops-simple \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=https://sonarcloud.io
+
   # 4️⃣ Push Docker image to Artifact Registry 
   push-image:
     needs: sonar
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: app-image
+
+      - name: Load Docker image
+        run: docker load -i app-dev.tar
+
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -64,6 +78,7 @@ jobs:
       - name: Push Docker image
         run: |
           gcloud auth configure-docker us-central1-docker.pkg.dev
+          docker tag app-dev:latest us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app-dev:latest
           docker push us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app-dev:latest
 
   # 5️⃣ Deploy to Dev environment (Cloud Run)
@@ -89,7 +104,6 @@ jobs:
     needs: deploy-dev
     runs-on: ubuntu-latest
     steps:
-      # ✅ Notificación en Slack
       - name: Send deployment notification to Slack
         if: success()
         uses: slackapi/slack-github-action@v1.24.0
@@ -101,7 +115,6 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-      # 📈 Trigger webhook de monitoreo
       - name: Trigger monitoring webhook
         if: success()
         run: |
