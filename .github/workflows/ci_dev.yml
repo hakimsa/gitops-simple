@@ -43,24 +43,10 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install SonarCloud Scanner
-        run: npm install -g sonarqube-scanner
-
       - name: Run SonarCloud Analysis
         env:
-          SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
-        run: |
-          node -e "
-            const scanner = require('sonarqube-scanner');
-            scanner({
-              serverUrl: 'https://sonarcloud.io',
-              options: {
-                'sonar.projectKey': 'hakimsa_devops-repo',
-                'sonar.organization': 'hakimsa',
-                'sonar.sources': '.'
-              }
-            });
-          "
+         SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
+        run: node sonar.js
   # 4️⃣ Push Docker image to Artifact Registry 
   push-image:
     needs: sonar
