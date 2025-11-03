@@ -3,8 +3,8 @@ name: CI/CD Pipeline - Dev
 on:
   push:
     branches:
-      - develop        # Se ejecuta solo en la rama develop
-  workflow_dispatch:   # Permite ejecución manual del pipeline
+      - develop
+  workflow_dispatch:
 
 jobs:
   # 1️⃣ Build Docker image
@@ -31,28 +31,29 @@ jobs:
       - name: Run unit tests
         run: npm test
 
-  # 3️⃣ Static code analysis (SonarQube via Cloud Build)
+  # 3️⃣ Static code analysis (SonarQube)
   sonar:
     needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+      - name: Setup Java
+        uses: actions/setup-java@v3
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          distribution: temurin
+          java-version: '17'
 
-      - name: Setup gcloud CLI
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: fiery-synthesis-472821-m2
+      - name: Authenticate to SonarQube
+        run: echo "${{ secrets.TOKEN_SONRQUBE_GITOPS }}" > sonar-token.txt
 
-      - name: Run Cloud Build with SonarQube analysis
+      - name: Run SonarQube Analysis
         run: |
-          gcloud builds submit \
-            --config cloudbuild-dev-ci.yaml \
-            --project fiery-synthesis-472821-m2
+          mvn sonar:sonar \
+            -Dsonar.projectKey=my-service-dev \
+            -Dsonar.host.url=https://sonarqube.mycompany.com \
+            -Dsonar.login=${{ secrets.TOKEN_SONRQUBE_GITOPS }}
+
   # 4️⃣ Push Docker image to Artifact Registry 
   push-image:
     needs: sonar
@@ -103,7 +104,7 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-      # 📈 Trigger webhook de monitoreo (Prometheus/Grafana u otra plataforma)
+      # 📈 Trigger webhook de monitoreo
       - name: Trigger monitoring webhook
         if: success()
         run: |

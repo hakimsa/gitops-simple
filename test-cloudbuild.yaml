@@ -1,0 +1,11 @@
+steps:
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    secretEnv: ['TOKEN_SONRQUBE_GITOPS']
+    args:
+      - '-c'
+      - 'echo "Secreto cargado: \${TOKEN_SONRQUBE_GITOPS:0:10}****"'
+availableSecrets:
+  secretManager:
+    - versionName: projects/fiery-synthesis-472821-m2/secrets/TOKEN_SONRQUBE_GITOPS/versions/latest
+      env: 'TOKEN_SONRQUBE_GITOPS'

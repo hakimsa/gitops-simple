@@ -1,15 +1,17 @@
 steps:
-  - name: 'gcr.io/cloud-builders/bash'
+  - name: 'gcr.io/cloud-builders/mvn'
     entrypoint: 'bash'
-    secretEnv: ['TOKEN_SONRQUBE_GITOPS']
+    secretEnv: ['TOKEN_SONRQUBE_GITOPS_GLOBAL']
     args:
       - '-c'
       - |
-        echo "✅ Verificando acceso al secreto TOKEN_SONRQUBE_GITOPS"
-        if [ -z "$TOKEN_SONRQUBE_GITOPS" ]; then
-          echo "❌ ERROR: El secreto NO está disponible"
-          exit 1
-        else
-          echo "✅ Secreto disponible (valor oculto por seguridad)"
-          echo "${TOKEN_SONRQUBE_GITOPS:0:4}********" # muestra solo los 4 primeros chars
-        fi
+        echo "Ejecutando análisis SonarQube..."
+        mvn sonar:sonar \
+          -Dsonar.projectKey=my-service-dev \
+          -Dsonar.host.url=https://sonarqube.mycompany.com \
+          -Dsonar.login=$TOKEN_SONRQUBE_GITOPS_GLOBAL
+
+availableSecrets:
+  secretManager:
+    - versionName: projects/fiery-synthesis-472821-m2/secrets/TOKEN_SONRQUBE_GITOPS_GLOBAL/versions/latest
+      env: 'TOKEN_SONRQUBE_GITOPS_GLOBAL'

@@ -1,43 +1,20 @@
+# Exporta el valor actual
+gcloud secrets versions access latest \
+  --secret=TOKEN_SONRQUBE_GITOPS \
+  --project=fiery-synthesis-472821-m2 > token.txt
 
+# Crea uno nuevo con replicación automática
+gcloud secrets create TOKEN_SONRQUBE_GITOPS_GLOBAL \
+  --replication-policy="automatic" \
+  --project=fiery-synthesis-472821-m2
 
+# Sube el contenido
+gcloud secrets versions add TOKEN_SONRQUBE_GITOPS_GLOBAL \
+  --data-file=token.txt \
+  --project=fiery-synthesis-472821-m2
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-  PROJECT_ID="fiery-synthesis-472821-m2"
-SA="serviceAccount:github-actions-sa@$PROJECT_ID.iam.gserviceaccount.com"
-
-# Permitir lanzar builds y ver resultados
-gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --member="$SA" \
-  --role="roles/cloudbuild.builds.editor"
-
-# Permitir usar Artifact Registry (subir imágenes Docker)
-gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --member="$SA" \
-  --role="roles/artifactregistry.writer"
-
-# Permitir desplegar en Cloud Run
-gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --member="$SA" \
-  --role="roles/run.admin"
-
-# Permitir autenticarse y gestionar cuentas de servicio
-gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --member="$SA" \
-  --role="roles/iam.serviceAccountUser"
-
-# (Opcional, pero útil para leer logs de build)
-gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --member="$SA" \
-  --role="roles/viewer"
+# Da permisos a Cloud Build
+gcloud secrets add-iam-policy-binding TOKEN_SONRQUBE_GITOPS_GLOBAL \
+  --member="serviceAccount:743628116662@cloudbuild.gserviceaccount.com" \
+  --role="roles/secretmanager.secretAccessor" \
+  --project=fiery-synthesis-472821-m2
