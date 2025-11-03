@@ -48,7 +48,7 @@ jobs:
         with:
           projectBaseDir: '.'
           organization: 'hakimsa'
-          projectKey: 'gitops-simple'
+          projectKey: 'hakimsa_gitops-simple'
         env:
          SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
   # 4️⃣ Push Docker image to Artifact Registry 
