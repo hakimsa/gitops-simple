@@ -17,7 +17,7 @@ jobs:
         run: |
           docker build -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/my-repo/app-dev:latest .
 
-  # 2️⃣ Run tests
+  # 2️⃣ Run unit tests
   test:
     needs: build
     runs-on: ubuntu-latest
@@ -31,7 +31,7 @@ jobs:
       - name: Run unit tests
         run: npm test
 
-  # 3️⃣ Static analysis (SonarQube)
+  # 3️⃣ Static code analysis (SonarQube)
   sonar:
     needs: test
     runs-on: ubuntu-latest
@@ -56,7 +56,7 @@ jobs:
             --project ${{ secrets.GCP_PROJECT }} \
             --substitutions=_TOKEN_SONRQUBE_GITOPS=${{ secrets.TOKEN_SONRQUBE_GITOPS }}
 
-  # 4️⃣ Push Docker image
+  # 4️⃣ Push Docker image to Artifact Registry
   push-image:
     needs: sonar
     runs-on: ubuntu-latest
@@ -65,12 +65,13 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
+
       - name: Push Docker image
         run: |
           gcloud auth configure-docker us-central1-docker.pkg.dev
-          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/my-repo/app-dev:latest
+          docker push us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app-dev:latest
 
-  # 5️⃣ Deploy to Dev environment
+  # 5️⃣ Deploy to Dev environment (Cloud Run)
   deploy-dev:
     needs: push-image
     runs-on: ubuntu-latest
@@ -79,34 +80,36 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-      - name: Deploy to Dev
+
+      - name: Deploy to Dev environment
         run: |
           gcloud run deploy my-service-dev \
-            --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/my-repo/app-dev:latest \
+            --image us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app-dev:latest \
             --region us-central1 \
             --platform managed \
             --allow-unauthenticated
 
-  # 6️⃣ Post-deploy monitoring & alerting (opcional)
+  # 6️⃣ Post-deploy monitoring & alerting
   monitoring:
     needs: deploy-dev
     runs-on: ubuntu-latest
     steps:
+      # ✅ Notificación en Slack
       - name: Send deployment notification to Slack
         if: success()
         uses: slackapi/slack-github-action@v1.24.0
         with:
           payload: |
             {
-              "text": ":rocket: *Deploy completado en entorno DEV* :white_check_mark:\nProyecto: ${{ secrets.GCP_PROJECT }}\nServicio: my-service-dev\nCommit: ${{ github.sha }}"
+              "text": ":rocket: *Deploy completado en entorno DEV* :white_check_mark:\nProyecto:fiery-synthesis-472821-m2\nServicio: my-service-dev\nCommit: ${{ github.sha }}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-      - name: Trigger monitoring job (Prometheus/Grafana webhook)
+      # 📈 Trigger webhook de monitoreo (Prometheus/Grafana u otra plataforma)
+      - name: Trigger monitoring webhook
         if: success()
         run: |
           curl -X POST ${{ secrets.MONITORING_WEBHOOK_URL }} \
             -H "Content-Type: application/json" \
             -d '{"service":"my-service-dev","status":"deployed","env":"DEV"}'
-

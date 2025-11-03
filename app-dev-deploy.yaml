@@ -1,7 +1,7 @@
 runtime: custom        # Usas contenedor personalizado
 env: flex              # App Engine Flexible environment
 
-service: backend-service  
+service: backend-service-dev   # Nombre del servicio en App Engine
 
 automatic_scaling:
   min_num_instances: 1
