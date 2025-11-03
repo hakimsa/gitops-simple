@@ -15,7 +15,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t us-central1-docker.pkg.dev/${ secrets.GCP_PROJECT }/my-repo/app-dev:latest .
+          docker build -t us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app-dev:latest .
 
   # 2️⃣ Run unit tests
   test:
