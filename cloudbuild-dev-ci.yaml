@@ -1,10 +1,17 @@
 steps:
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    id: 'Deploy Staging'
+  - name: 'gcr.io/cloud-builders/mvn'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        gcloud app deploy app-dev-deploy.yaml \
-          --image-url=us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app:$TAG_NAME \
-          --quiet
+        echo "Running SonarQube analysis..."
+        mvn sonar:sonar \
+          -Dsonar.projectKey=my-service-dev \
+          -Dsonar.host.url=https://sonarqube.mycompany.com \
+          -Dsonar.login=$$TOKEN_SONRQUBE_GITOPS
+    secretEnv: ['TOKEN_SONRQUBE_GITOPS']
+
+availableSecrets:
+  secretManager:
+    - versionName: projects/fiery-synthesis-472821-m2/secrets/TOKEN_SONRQUBE_GITOPS/versions/latest
+      env: 'TOKEN_SONRQUBE_GITOPS'
