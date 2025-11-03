@@ -19,7 +19,7 @@ jobs:
           docker save app-dev:latest -o app-dev.tar
 
       - name: Upload image artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-image
           path: app-dev.tar
@@ -63,7 +63,7 @@ jobs:
     needs: sonar
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: app-image
 
