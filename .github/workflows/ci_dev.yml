@@ -47,8 +47,10 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@v2
         with:
           projectBaseDir: '.'
+          organization: 'hakimsa-1'
+          projectKey: 'gitops-simple'
         env:
-          SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
+         SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
   # 4️⃣ Push Docker image to Artifact Registry 
   push-image:
     needs: sonar
