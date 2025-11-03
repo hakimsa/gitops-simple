@@ -55,7 +55,7 @@ jobs:
          run: |
           npx sonarqube-scanner \
           -Dsonar.projectKey=my-service-dev \
-          -Dsonar.host.url=https://sonarqube.mycompany.com \
+          -Dsonar.host.url=https://sonarqube.hakimsa_devops-repo.com \
           -Dsonar.login=$SONAR_TOKEN
 
   # 4️⃣ Push Docker image to Artifact Registry 
