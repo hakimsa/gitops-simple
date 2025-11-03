@@ -1,4 +1,5 @@
 steps:
+  # 🔍 Análisis SonarQube usando Maven
   - name: 'gcr.io/cloud-builders/mvn'
     entrypoint: 'bash'
     secretEnv: ['TOKEN_SONRQUBE_GITOPS']
@@ -10,13 +11,13 @@ steps:
           -Dsonar.host.url=https://sonarqube.mycompany.com \
           -Dsonar.login=${TOKEN_SONRQUBE_GITOPS}
 
-# 🔐 Declaración del secreto para Cloud Build
+# 🔐 Sección obligatoria: definición del secreto desde Secret Manager
 availableSecrets:
   secretManager:
     - versionName: projects/fiery-synthesis-472821-m2/secrets/TOKEN_SONRQUBE_GITOPS/versions/latest
       env: 'TOKEN_SONRQUBE_GITOPS'
 
-# Opcional: definir imágenes de salida o timeout
+# ⚙️ Opcional: configuraciones adicionales
 timeout: 900s
 options:
   logging: CLOUD_LOGGING_ONLY
