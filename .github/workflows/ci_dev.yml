@@ -56,7 +56,7 @@ jobs:
             --project ${{ secrets.GCP_PROJECT }} \
             --substitutions=_TOKEN_SONRQUBE_GITOPS=${{ secrets.TOKEN_SONRQUBE_GITOPS }}
 
-  # 4️⃣ Push Docker image to Artifact Registry
+  # 4️⃣ Push Docker image to Artifact Registry 
   push-image:
     needs: sonar
     runs-on: ubuntu-latest
