@@ -44,9 +44,11 @@ jobs:
           node-version: '20'
 
       - name: Run SonarCloud Analysis
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: '.'
         env:
-         SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
-        run: node sonar.js
+          SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
   # 4️⃣ Push Docker image to Artifact Registry 
   push-image:
     needs: sonar
