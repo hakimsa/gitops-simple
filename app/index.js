@@ -9,7 +9,6 @@ const rooter = require('./roots/api/productos');
 const index= require('./roots/root');
 app.use(bodyParser.urlencoded( {extended:false} ));
 app.use(bodyParser.json());
-//const conexion=`${serv}${user}:${pass}@${cluster}${db}?retryWrites=true&w=majority`;
 const encodedPass = encodeURIComponent(pass);
 
 const conexion = `${serv}${user}:${encodedPass}@${cluster}/${db}?retryWrites=true&w=majority`;
@@ -31,14 +30,12 @@ app.use(logger);
 app.use(rooter);
 app.use(index);
 
-mongoose.connect(conexion.toString(),
- { }).then(
-    ()=> {  
-	
-        app.listen(PORT, ()=>{
-        });
-	}).catch(
-error=>{
-
-	logEvents( error.name +"\t" +"\t"+"Error" +"\t"+error.message+"\t");
-});
+mongoose.connect(conexion.toString(), {})
+  .then(() => {  
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Servidor escuchando en puerto ${PORT}`);
+    });
+  })
+  .catch(error => {
+    logEvents(`${error.name}\tError\t${error.message}\t`);
+  });
