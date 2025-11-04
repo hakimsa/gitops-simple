@@ -1,17 +1,18 @@
+# Usa una versión estable y soportada por Cloud Run
 FROM node:18
 
-# Directorio de trabajo
+# Directorio de trabajo dentro del contenedor
 WORKDIR /usr/src/app
 
-# Instalar dependencias
+# Copiamos archivos de dependencias y las instalamos
 COPY package*.json ./
 RUN npm install
 
-# Copiar toda la app (subcarpetas incluidas)
-COPY app/ ./
+# Copiamos toda la carpeta "app" dentro del contenedor
+COPY app ./app
 
-# Exponer puerto
+# Exponemos el puerto que Cloud Run usará
 EXPOSE 8080
 
-# Ejecutar la app
-CMD [ "node", "app/index.js" ]
+# Comando para ejecutar la app (tu index está dentro de /app)
+CMD ["node", "app/index.js"]
