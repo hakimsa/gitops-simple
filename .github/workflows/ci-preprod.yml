@@ -1,30 +1,42 @@
-name: CI/CD Pipeline - PREPROD
+name: CI/CD Pipeline - PREPROD (Blue-Green + Cosign + Rollback)
 
 on:
   push:
-    branches:
-      - release
+    branches: [ release ]
   workflow_dispatch:
 
+env:
+  REGION: us-central1
+  PROJECT_ID: fiery-synthesis-472821-m2
+  REPO: my-repo
+  SERVICE: service-preprod
+
 jobs:
-  # 1️⃣ Build Docker image
   build:
-    runs-on: ubuntu-latestf
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps:set-image.outputs.image }}
     steps:
       - uses: actions/checkout@v3
 
       - name: Build Docker image
         run: |
-          docker build -t app-preprod:latest .
-          docker save app-preprod:latest -o app-preprod.tar
+          IMAGE_TAG="app-preprod:latest"
+          docker build -t $IMAGE_TAG .
+          docker save $IMAGE_TAG -o app-preprod.tar
 
       - name: Upload image artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-image
           path: app-preprod.tar
+          retention-days: 3
 
-  # 2️⃣ Run unit tests
+      - name: Set image output
+        id: set-image
+        run: |
+          echo "image=us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/app-preprod:latest" >> $GITHUB_OUTPUT
+
   test:
     needs: build
     runs-on: ubuntu-latest
@@ -38,14 +50,12 @@ jobs:
       - name: Run unit tests
         run: npm test
 
-  # 3️⃣ Static code analysis (SonarCloud)
   sonar:
     needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: '20'
       - name: Run SonarCloud Scan
@@ -55,10 +65,9 @@ jobs:
           npx sonar-scanner \
             -Dsonar.organization=hakimsa \
             -Dsonar.projectKey=hakimsa_gitops-simple \
-            -Dsonar.sources=. \
+            -Dsonar.sources=./ \
             -Dsonar.host.url=https://sonarcloud.io
 
-  # 4️⃣ Push Docker image to Artifact Registry 
   push-image:
     needs: sonar
     runs-on: ubuntu-latest
@@ -66,58 +75,150 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: app-image
-
-      - name: Load Docker image
-        run: docker load -i app-preprod.tar
+          path: .
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Push Docker image
-        run: |
-          gcloud auth configure-docker us-central1-docker.pkg.dev
-          docker tag app-preprod:latest us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app-preprod:latest
-          docker push us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app-preprod:latest
+      - name: Configure Docker auth for Artifact Registry
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev
 
-  # 5️⃣ Deploy to Dev environment (Cloud Run)
-  deploy-preprod:
+      - name: Load and tag image
+        run: |
+          docker load -i app-preprod.tar
+          docker tag app-preprod:latest us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/app-preprod:latest
+
+      - name: Push image to Artifact Registry
+        run: |
+          docker push us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/app-preprod:latest
+
+      - name: Install cosign
+        run: |
+          curl -L -o cosign https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64
+          chmod +x cosign
+          sudo mv cosign /usr/local/bin/cosign
+
+      - name: Sign image with cosign
+        env:
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+        run: |
+          echo "${{ secrets.COSIGN_PRIVATE_KEY }}" > cosign.key
+          cosign sign --key cosign.key us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/app-preprod:latest
+
+      - name: Export pushed image name
+        id: img
+        run: echo "image=us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/app-preprod:latest" >> $GITHUB_OUTPUT
+
+  deploy-preprod-bluegreen:
     needs: push-image
     runs-on: ubuntu-latest
+    outputs:
+      new_rev: ${{ steps.set.outputs.new_rev }}
+      prev_rev: ${{ steps.set.outputs.prev_rev }}
     steps:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Deploy to Dev environment
-        run: |
-          gcloud run deploy service-preprod \
-            --image us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app-preprod:latest \
-            --region us-central1 \
-            --platform managed \
-            --allow-unauthenticated
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
 
-  # 6️⃣ Post-deploy monitoring & alerting
-  monitoring:
-    needs: deploy-preprod
+      - name: Get current active revision (prev_rev)
+        id: prev
+        run: |
+          PREV=$(gcloud run services describe ${{ env.SERVICE }} --region ${{ env.REGION }} --format="value(status.traffic[0].revisionName)" || echo "")
+          echo "prev_rev=$PREV" >> $GITHUB_OUTPUT
+
+      - name: Deploy new revision WITHOUT traffic
+        id: set
+        run: |
+          IMAGE="us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/app-preprod:latest"
+          # deploy new revision but do not send traffic to it yet
+          NEW_REV=$(gcloud run deploy ${{ env.SERVICE }} --image="$IMAGE" --region=${{ env.REGION }} --platform=managed --no-traffic --format="value(status.latestReadyRevisionName)")
+          echo "new_rev=$NEW_REV" >> $GITHUB_OUTPUT
+          # export prev_rev again for job outputs (if empty, leave blank)
+          PREV=$(gcloud run services describe ${{ env.SERVICE }} --region ${{ env.REGION }} --format="value(status.traffic[0].revisionName)" || echo "")
+          echo "prev_rev=$PREV" >> $GITHUB_OUTPUT
+
+      - name: Get new revision URL
+        run: |
+          NEW_REV=${{ steps.set.outputs.new_rev }}
+          REV_URL=$(gcloud run revisions describe "$NEW_REV" --region=${{ env.REGION }} --format="value(status.url)")
+          echo "REV_URL=$REV_URL"
+          echo "rev_url=$REV_URL" >> $GITHUB_OUTPUT
+
+  smoke-test:
+    needs: deploy-preprod-bluegreen
     runs-on: ubuntu-latest
     steps:
-      - name: Send deployment notification to Slack
-        if: success()
-        uses: slackapi/slack-github-action@v1.24.0
-        with:
-          payload: |
-            {
-              "text": ":rocket: *Deploy completado en entorno DEV* :white_check_mark:\nProyecto: fiery-synthesis-472821-m2\nServicio: service-preprod\nCommit: ${{ github.sha }}"
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Wait a bit for revision warmup
+        run: sleep 8
 
-      - name: Trigger monitoring webhook
-        if: success()
+      - name: Run smoke check against new revision
         run: |
-          curl -X POST ${{ secrets.MONITORING_WEBHOOK_URL }} \
-            -H "Content-Type: application/json" \
-            -d '{"service":"service-preprod","status":"deployed","env":"PREPROD"}'
+          REV_URL="${{ needs.deploy-preprod-bluegreen.outputs.new_rev_url || '' }}"
+          # Try to obtain URL via describe if outputs missing
+          if [ -z "$REV_URL" ]; then
+            NEW_REV="${{ needs.deploy-preprod-bluegreen.outputs.new_rev }}"
+            REV_URL=$(gcloud run revisions describe "$NEW_REV" --region=us-central1 --format="value(status.url)")
+          fi
+          echo "Testing $REV_URL"
+          # 5 attempts
+          for i in 1 2 3 4 5; do
+            http_status=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$REV_URL" || echo 000)
+            echo "Attempt $i => $http_status"
+            if [[ "$http_status" == "200" || "$http_status" == "204" || "$http_status" == "302" ]]; then
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "Smoke tests failed"
+          exit 1
+
+  promote-preprod:
+    needs: [deploy-preprod-bluegreen, smoke-test]
+    runs-on: ubuntu-latest
+    if: ${{ needs.smoke-test.result == 'success' }}
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Promote new revision to 100% traffic
+        run: |
+          NEW_REV="${{ needs.deploy-preprod-bluegreen.outputs.new_rev }}"
+          gcloud run services update-traffic ${{ env.SERVICE }} --to-revision="${NEW_REV}=100" --region=${{ env.REGION }}
+
+      - name: Notify Slack & Monitoring
+        run: |
+          curl -X POST "${{ secrets.MONITORING_WEBHOOK_URL }}" -H "Content-Type: application/json" -d '{"service":"service-preprod","status":"deployed","env":"PREPROD"}'
+          curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" -H "Content-type: application/json" --data '{"text":"Deploy PREPROD completado: '${{ github.sha }}'"}'
+
+  rollback-preprod:
+    needs: [deploy-preprod-bluegreen, smoke-test]
+    runs-on: ubuntu-latest
+    if: ${{ needs.smoke-test.result == 'failure' }}
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Rollback traffic to previous revision
+        run: |
+          PREV_REV="${{ needs.deploy-preprod-bluegreen.outputs.prev_rev }}"
+          if [ -z "$PREV_REV" ]; then
+            echo "No previous revision found — nothing to rollback to."
+            exit 1
+          fi
+          echo "Rolling back to $PREV_REV"
+          gcloud run services update-traffic ${{ env.SERVICE }} --to-revision="${PREV_REV}=100" --region=${{ env.REGION }}
+
+      - name: Alert on rollback
+        run: |
+          curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" -H "Content-type: application/json" --data '{"text":"Rollback PREPROD realizado para '${{ github.sha }}'"}'
+          Curl -X POST "${{ secrets.MONITORING_WEBHOOK_URL }}" -H "Content-Type: application/json" -d '{"service":"service-preprod","status":"rollback","env":"PREPROD"}'
