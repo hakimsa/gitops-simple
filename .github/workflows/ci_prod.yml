@@ -15,7 +15,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
-      image: ${{ steps.set-image.outputs.image }}
+       image: ${{ steps.set-image.outputs.image }}
+
     steps:
       - uses: actions/checkout@v3
 
