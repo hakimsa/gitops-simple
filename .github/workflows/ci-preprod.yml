@@ -1,0 +1,123 @@
+name: CI/CD Pipeline - Preprod
+
+on:
+  push:
+    branches:
+      - release
+  workflow_dispatch:
+
+jobs:
+  # 1️⃣ Build Docker image
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t app-preprod:latest .
+          docker save app-preprod:latest -o app-preprod.tar
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-image
+          path: app-preprod.tar
+
+  # 2️⃣ Run unit tests
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm install
+      - name: Run unit tests
+        run: npm test
+
+  # 3️⃣ Static code analysis (SonarCloud)
+  sonar:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - name: Run SonarCloud Scan
+        env:
+          SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
+        run: |
+          npx sonar-scanner \
+            -Dsonar.organization=hakimsa \
+            -Dsonar.projectKey=hakimsa_gitops-simple \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=https://sonarcloud.io
+
+  # 4️⃣ Push Docker image to Artifact Registry 
+  push-image:
+    needs: sonar
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: app-image
+
+      - name: Load Docker image
+        run: docker load -i app-preprod.tar
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Push Docker image
+        run: |
+          gcloud auth configure-docker us-central1-docker.pkg.dev
+          docker tag app-preprod:latest us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app-preprod:latest
+          docker push us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app-preprod:latest
+
+  # 5️⃣ Deploy to Dev environment (Cloud Run)
+  deploy-dev:
+    needs: push-image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Deploy to Dev environment
+        run: |
+          gcloud run deploy service-preprod \
+            --image us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app-preprod:latest \
+            --region us-central1 \
+            --platform managed \
+            --allow-unauthenticated
+
+  # 6️⃣ Post-deploy monitoring & alerting
+  monitoring:
+    needs: deploy-preprod
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send deployment notification to Slack
+        if: success()
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "text": ":rocket: *Deploy completado en entorno DEV* :white_check_mark:\nProyecto: fiery-synthesis-472821-m2\nServicio: service-preprod\nCommit: ${{ github.sha }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Trigger monitoring webhook
+        if: success()
+        run: |
+          curl -X POST ${{ secrets.MONITORING_WEBHOOK_URL }} \
+            -H "Content-Type: application/json" \
+            -d '{"service":"service-preprod","status":"deployed","env":"DEV"}'
