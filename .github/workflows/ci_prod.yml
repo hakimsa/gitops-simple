@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  # 1️⃣ Build Docker image
+  #  Build Docker image
   build:
     runs-on: ubuntu-latest
     steps:
@@ -23,8 +23,9 @@ jobs:
         with:
           name: app-image
           path: app-prod.tar
+          retention-days: 3
 
-  # 2️⃣ Run unit tests
+  #  Run unit tests
   test:
     needs: build
     runs-on: ubuntu-latest
@@ -33,21 +34,25 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '20'
+
       - name: Install dependencies
         run: npm install
+
       - name: Run unit tests
         run: npm test
 
-  # 3️⃣ Static code analysis (SonarCloud)
+  # Static code analysis (SonarCloud)
   sonar:
     needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
+
       - name: Run SonarCloud Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
@@ -55,10 +60,10 @@ jobs:
           npx sonar-scanner \
             -Dsonar.organization=hakimsa \
             -Dsonar.projectKey=hakimsa_gitops-simple \
-            -Dsonar.sources=. \
+            -Dsonar.sources=./ \
             -Dsonar.host.url=https://sonarcloud.io
 
-  # 4️⃣ Push Docker image to Artifact Registry 
+  # Push Docker image to Artifact Registry 
   push-image:
     needs: sonar
     runs-on: ubuntu-latest
@@ -81,7 +86,7 @@ jobs:
           docker tag app-prod:latest us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app-prod:latest
           docker push us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app-prod:latest
 
-  # 5️⃣ Deploy to Dev environment (Cloud Run)
+  # Deploy to PROD environment (Cloud Run)
   deploy-prod:
     needs: push-image
     runs-on: ubuntu-latest
@@ -91,7 +96,7 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Deploy to Dev environment
+      - name: Deploy to PROD environment
         run: |
           gcloud run deploy service-prod \
             --image us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app-prod:latest \
@@ -99,7 +104,7 @@ jobs:
             --platform managed \
             --allow-unauthenticated
 
-  # 6️⃣ Post-deploy monitoring & alerting
+  # Post-deploy monitoring & alerting
   monitoring:
     needs: deploy-prod
     runs-on: ubuntu-latest
@@ -110,7 +115,7 @@ jobs:
         with:
           payload: |
             {
-              "text": ":rocket: *Deploy completado en entorno DEV* :white_check_mark:\nProyecto: fiery-synthesis-472821-m2\nServicio: service-prod\nCommit: ${{ github.sha }}"
+              "text": ":rocket: *Deploy completado en entorno PROD* :tada:\nProyecto: fiery-synthesis-472821-m2\nServicio: service-prod\nCommit: ${{ github.sha }}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

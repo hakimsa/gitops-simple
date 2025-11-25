@@ -1,7 +1,7 @@
-runtime: custom        # Usas contenedor personalizado
+app-dev-deploy.yamlruntime: custom        # Usas contenedor personalizado
 env: flex              # App Engine Flexible environment
 
-service: backend-service-dev   # Nombre del servicio en App Engine
+service: backend-service-preprod   # Nombre del servicio en App Engine
 
 automatic_scaling:
   min_num_instances: 1
@@ -21,4 +21,4 @@ env_variables:
   DB_CLUSTER: "cluster0.9pawl.mongodb.net"
   DB_NAME: "dbtest"
   DB_SERV: "mongodb+srv://"
-  NODE_ENV: "development"
+  NODE_ENV: "production"

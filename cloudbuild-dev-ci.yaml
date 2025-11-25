@@ -7,7 +7,7 @@ steps:
       - |
         echo "Ejecutando análisis SonarQube..."
         mvn sonar:sonar \
-          -Dsonar.projectKey=my-service-dev \
+          -Dsonar.projectKey=service-dev \
           -Dsonar.host.url=https://sonarqube.mycompany.com \
           -Dsonar.login=$TOKEN_SONRQUBE_GITOPS_GLOBAL
 
