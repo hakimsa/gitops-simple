@@ -1,4 +1,4 @@
-name: CI/CD Pipeline - Preprod
+name: CI/CD Pipeline - PREPROD
 
 on:
   push:
@@ -120,4 +120,4 @@ jobs:
         run: |
           curl -X POST ${{ secrets.MONITORING_WEBHOOK_URL }} \
             -H "Content-Type: application/json" \
-            -d '{"service":"service-preprod","status":"deployed","env":"DEV"}'
+            -d '{"service":"service-preprod","status":"deployed","env":"PREPROD"}'
