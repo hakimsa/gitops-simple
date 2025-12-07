@@ -22,3 +22,4 @@ env_variables:
   DB_NAME: "dbtest"
   DB_SERV: "mongodb+srv://"
   NODE_ENV: "development"
+  PORT_NUMBER: "8085"
