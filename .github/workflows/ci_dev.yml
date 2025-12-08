@@ -91,17 +91,25 @@ jobs:
     needs: push-image
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+    - uses: actions/checkout@v3
 
-      - name: Deploy to Dev environment
-        run: |
-         gcloud app deploy app-dev-deploy.yaml \
-         --project=fiery-synthesis-472821-m2 \
-         --quiet
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Ensure App Engine exists
+      run: |
+        if ! gcloud app describe --project=fiery-synthesis-472821-m2; then
+          gcloud app create --project=fiery-synthesis-472821-m2 --region=us-central1
+        fi
+
+    - name: Deploy to App Engine Flexible
+      run: |
+        gcloud app deploy app-dev-deploy.yaml \
+          --project=fiery-synthesis-472821-m2 \
+          --quiet
+
 
   # 6️⃣ Monitoring & notifications
   monitoring:
