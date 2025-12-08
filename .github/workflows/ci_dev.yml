@@ -99,7 +99,6 @@ jobs:
 
       - name: Deploy to Dev environment
         run: |
-         ls -R .
          gcloud app deploy app-dev-deploy.yaml \
          --project=fiery-synthesis-472821-m2 \
          --quiet
