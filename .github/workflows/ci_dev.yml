@@ -100,10 +100,9 @@ jobs:
 
     - name: Deploy to App Engine Flexible
       run: |
-        gcloud app deploy app-dev-deploy.yaml \
+        gcloud builds submit . \
           --project=fiery-synthesis-472821-m2 \
-          --quiet
-
+          --config cloudbuild.yaml
 
   # 6️⃣ Monitoring & notifications
   monitoring:
