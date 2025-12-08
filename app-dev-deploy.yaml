@@ -3,10 +3,6 @@ env: flex
 
 service: backend-service-dev
 
-deployment:
-  container:
-    image: us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app-dev:latest
-
 automatic_scaling:
   min_num_instances: 1
   max_num_instances: 2
@@ -23,4 +19,4 @@ env_variables:
   DB_NAME: "dbtest"
   DB_SERV: "mongodb+srv://"
   NODE_ENV: "development"
-  PORT: "8080"
+  
