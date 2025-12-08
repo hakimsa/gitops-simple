@@ -3,10 +3,6 @@ env: flex
 
 service: backend-service-dev
 
-deployment:
-  container:
-    image: us-central1-docker.pkg.dev/fiery-synthesis-472821-m2/my-repo/app-dev:latest
-
 automatic_scaling:
   min_num_instances: 1
   max_num_instances: 2
@@ -16,9 +12,6 @@ resources:
   memory_gb: 1
   disk_size_gb: 10
 
-entrypoint: ""         # La imagen Docker define su propio CMD o ENTRYPOINT
-
-# ✅ Variables de entorno (añádelas aquí)
 env_variables:
   DB_USER: "admin"
   DB_PASS: "Cafe2020"
