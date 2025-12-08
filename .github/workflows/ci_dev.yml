@@ -98,7 +98,9 @@ jobs:
 
       - name: Deploy to Dev environment
         run: |
-          gcloud app deploy app-dev-deploy.yaml --project=fiery-synthesis-472821-m2
+          gcloud app deploy app-dev-deploy.yaml \
+          --project=fiery-synthesis-472821-m2 \
+          --quiet
 
   # 6️⃣ Monitoring & notifications
   monitoring:
